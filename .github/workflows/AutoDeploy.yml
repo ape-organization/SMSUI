@@ -12,11 +12,11 @@ on:
     types:
       - opened
       - synchronize
-      - closed        
+      - closed
 
 permissions:
   contents: write
-  pull-requests: write  
+  pull-requests: write
 
 jobs:
   auto-tag:
@@ -34,9 +34,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Angular project
         run: npm run build --if-present
