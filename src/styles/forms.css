@@ -1,0 +1,156 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.field__hint,
+.field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.field__error {
+  color: var(--color-red);
+}
+
+.input {
+  width: 100%;
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.input:hover {
+  border-color: var(--color-text-subtle);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-blue);
+  box-shadow: var(--focus-ring);
+}
+
+.input:disabled {
+  background: var(--color-surface-alt);
+  cursor: not-allowed;
+}
+
+/* Angular adds ng-invalid / ng-touched to form controls automatically */
+.input.ng-invalid.ng-touched,
+.input--invalid {
+  border-color: var(--color-red);
+}
+
+.input.ng-invalid.ng-touched:focus,
+.input--invalid:focus {
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.15);
+}
+
+/* Two fields side by side from 480px up */
+.form-row {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Password input with show/hide toggle */
+.password-field {
+  position: relative;
+}
+
+.password-field .input {
+  padding-inline-end: 3rem;
+}
+
+.password-field__toggle {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: var(--space-1);
+  transform: translateY(-50%);
+}
+
+/* One-time code boxes */
+.otp {
+  display: grid;
+  grid-template-columns: repeat(var(--otp-length, 6), minmax(0, 3.25rem));
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.otp__box {
+  height: 3.5rem;
+  padding: 0;
+  text-align: center;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+@media (min-width: 400px) {
+  .otp {
+    gap: var(--space-3);
+  }
+}
+
+/* Password policy checklist */
+.rules {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  list-style: none;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  transition: color var(--transition);
+}
+
+.rule mat-icon {
+  color: var(--color-text-subtle);
+}
+
+.rule--met,
+.rule--met mat-icon {
+  color: var(--color-green);
+}
+
+@media (min-width: 480px) {
+  .rules {
+    grid-template-columns: 1fr 1fr;
+  }
+}

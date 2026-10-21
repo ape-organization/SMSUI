@@ -1,0 +1,45 @@
+<dialog
+  #dialog
+  class="dialog dialog--sm"
+  role="alertdialog"
+  aria-labelledby="delete-dialog-title"
+  aria-describedby="delete-dialog-message"
+  (click)="closeOnBackdrop($event)"
+>
+  @if (options(); as options) {
+    <div class="dialog__panel">
+      <header class="dialog__header">
+        <span class="icon-badge" data-tone="red"><mat-icon>delete</mat-icon></span>
+        <h2 id="delete-dialog-title" class="dialog__title">{{ options.title | t }}</h2>
+      </header>
+
+      <p id="delete-dialog-message" class="text-sm text-muted">
+        {{ options.message | t: options.messageParams }}
+      </p>
+
+      @if (request.error(); as error) {
+        <div class="alert" data-tone="red" role="alert">
+          <mat-icon class="icon-18">error</mat-icon>
+          <span class="alert__body">{{ error }}</span>
+        </div>
+      }
+
+      <footer class="dialog__actions">
+        <button type="button" class="btn btn--secondary" (click)="close()">
+          {{ 'common.cancel' | t }}
+        </button>
+        <button
+          type="button"
+          class="btn btn--danger"
+          [disabled]="request.loading()"
+          (click)="confirm()"
+        >
+          @if (request.loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          {{ options.confirmLabel | t }}
+        </button>
+      </footer>
+    </div>
+  }
+</dialog>

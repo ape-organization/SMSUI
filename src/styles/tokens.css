@@ -1,0 +1,98 @@
+/*
+ * Design tokens — the single source of truth for colours, spacing and shape.
+ * Palette ratio: ~80% neutrals, ~15% navy, ~5% accents (blue / red / green).
+ */
+:root {
+  /* Neutrals (~80%) */
+  --color-bg: #f4f6fa;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+
+  /* Navy (~15%) — brand, headings, primary actions */
+  --color-navy: #0f2747;
+  --color-navy-dark: #0a1c35;
+  --color-navy-light: #1d3a64;
+  --color-navy-tint: #e9eef6;
+
+  /* Accents (~5%) — focus, status and feedback only */
+  --color-blue: #2563eb;
+  --color-blue-tint: #eff4ff;
+  --color-red: #dc2626;
+   --color-dark-red: #630808;
+  --color-red-tint: #fef2f2;
+  --color-green: #16a34a;
+  --color-gold:#C9A35E;
+  --color-dark-green: #055723;
+  --color-green-tint: #f0fdf4;
+
+  /* Typography */
+  --font-sans:
+    'Inter', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --tracking-tight: -0.01em;
+  --tracking-wide: 0.08em;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  /* Shape & depth */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+  --shadow-sm: 0 1px 2px rgb(15 39 71 / 0.06);
+  --shadow-md: 0 4px 12px rgb(15 39 71 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(15 39 71 / 0.1);
+  --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.25);
+  --transition: 150ms ease;
+
+  /* Layout */
+  --control-height: 2.75rem;
+  --sidebar-width: 15.5rem;
+  --topbar-height: 4rem;
+
+  /* 1 in LTR, -1 in RTL — multiply horizontal offsets/transforms by it */
+  --dir: 1;
+}
+
+/* Arabic is a connected script: letter-spacing breaks the joins. */
+[dir='rtl'] {
+  --dir: -1;
+  --tracking-tight: 0;
+  --tracking-wide: 0;
+}
+
+/* Tones — set `data-tone` on any element; components read --tone / --tone-tint. */
+[data-tone='navy'] {
+  --tone: var(--color-navy);
+  --tone-tint: var(--color-navy-tint);
+}
+[data-tone='blue'] {
+  --tone: var(--color-blue);
+  --tone-tint: var(--color-blue-tint);
+}
+[data-tone='red'] {
+  --tone: var(--color-red);
+  --tone-tint: var(--color-red-tint);
+}
+[data-tone='green'] {
+  --tone: var(--color-green);
+  --tone-tint: var(--color-green-tint);
+}

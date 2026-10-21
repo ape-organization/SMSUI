@@ -1,0 +1,100 @@
+<dialog
+  #dialog
+  class="dialog"
+  aria-labelledby="user-dialog-title"
+  (click)="closeOnBackdrop($event)"
+>
+  <form class="dialog__panel" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <header class="dialog__header">
+      <span class="icon-badge" data-tone="blue">
+        <mat-icon>{{ editing() ? 'manage_accounts' : 'person_add' }}</mat-icon>
+      </span>
+      <h2 id="user-dialog-title" class="dialog__title">
+        {{ (editing() ? 'users.form.editTitle' : 'users.form.addTitle') | t }}
+      </h2>
+      <button
+        type="button"
+        class="btn btn--ghost btn--icon btn--sm dialog__close"
+        [attr.aria-label]="'common.close' | t"
+        (click)="close()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    @if (saveRequest.error(); as error) {
+      <div class="alert" data-tone="red" role="alert">
+        <mat-icon class="icon-18">error</mat-icon>
+        <span class="alert__body">{{ error }}</span>
+      </div>
+    }
+
+    <div class="form">
+      <div class="field">
+        <label class="field__label" for="user-name">{{ 'users.form.name' | t }}</label>
+        <input
+          id="user-name"
+          class="input"
+          formControlName="name"
+          autocomplete="off"
+          [placeholder]="'users.form.namePlaceholder' | t"
+        />
+        @if (fieldError(form.controls.name); as error) {
+          <p class="field__error" role="alert">
+            <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="user-email">{{ 'users.form.email' | t }}</label>
+        <input
+          id="user-email"
+          class="input"
+          type="email"
+          dir="ltr"
+          formControlName="email"
+          autocomplete="off"
+          [placeholder]="'users.form.emailPlaceholder' | t"
+        />
+        @if (fieldError(form.controls.email); as error) {
+          <p class="field__error" role="alert">
+            <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+          </p>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label class="field__label" for="user-role">{{ 'users.form.role' | t }}</label>
+          <select id="user-role" class="input" formControlName="role">
+            @for (role of roles; track role) {
+              <option [value]="role">{{ roleLabels[role] | t }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-status">{{ 'users.form.status' | t }}</label>
+          <select id="user-status" class="input" formControlName="status">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ statusLabels[status].label | t }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <footer class="dialog__actions">
+      <button type="button" class="btn btn--secondary" (click)="close()">
+        {{ 'common.cancel' | t }}
+      </button>
+      <button type="submit" class="btn btn--primary" [disabled]="saveRequest.loading()">
+        @if (saveRequest.loading()) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        {{ (editing() ? 'common.save' : 'users.form.submitAdd') | t }}
+      </button>
+    </footer>
+  </form>
+</dialog>

@@ -1,0 +1,109 @@
+<div class="stack">
+  <header class="users__header">
+    <div class="page-header">
+       <h4 class="page-title">{{ 'users.title' | t }}</h4> 
+      <p class="text-muted">{{ 'users.subtitle' | t }}</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="userForm.open()">
+      <mat-icon class="icon-18">person_add</mat-icon>
+      {{ 'users.add' | t }}
+    </button>
+  </header>
+
+  @if (listRequest.error(); as error) {
+    <div class="alert" data-tone="red" role="alert">
+      <mat-icon class="error">error</mat-icon>
+      <span class="alert__body">{{ error }}</span>
+      <button type="button" class="btn btn--link" (click)="load()">{{ 'common.retry' | t }}</button>
+    </div>
+  }
+
+  @if (loaded()) {
+   
+    <section class="card">
+       <div class="card__header">
+       
+      </div>
+
+      @if (users().length) {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'users.columns.name' | t }}</th>
+                <th scope="col">{{ 'users.columns.role' | t }}</th>
+                <th scope="col">{{ 'users.columns.status' | t }}</th>
+                <th scope="col">{{ 'users.columns.created' | t }}</th>
+                <th scope="col" class="table__actions">
+                  <span class="sr-only">{{ 'common.actions' | t }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of paginator.pageItems(); track user.id) {
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <span class="avatar" aria-hidden="true">{{ initials(user.name) }}</span>
+                      <div class="user-cell__text">
+                        <p class="user-cell__name">{{ user.name }}</p>
+                        <p class="text-sm text-muted" dir="ltr">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ roleLabels[user.role] | t }}</td>
+                  <td>
+                    <span class="badge" [attr.data-tone]="statusLabels[user.status].tone">
+                      {{ statusLabels[user.status].label | t }}
+                    </span>
+                  </td>
+                  <td class="text-muted">
+                    <time [attr.datetime]="user.createdAt">
+                      {{ user.createdAt | date: 'mediumDate' : undefined : locale() }}
+                    </time>
+                  </td>
+                  <td class="table__actions">
+                    <button
+                      type="button"
+                      class="btn btn--ghost btn--icon btn--sm"
+                      [attr.aria-label]="'users.edit' | t: { name: user.name }"
+                      [title]="'common.edit' | t"
+                      (click)="userForm.open(user)"
+                    >
+                      <mat-icon class="edit">edit</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn--ghost btn--icon btn--sm users__delete"
+                      [attr.aria-label]="'users.delete' | t: { name: user.name }"
+                      [title]="'common.delete' | t"
+                      (click)="confirmDelete(user)"
+                    >
+                      <mat-icon class="error">delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pagination [paginator]="paginator" />
+      } @else {
+        <div class="card__body users__empty">
+          <span class="icon-badge icon-badge--lg"><mat-icon>group</mat-icon></span>
+          <p class="text-sm text-muted">{{ 'users.empty' | t }}</p>
+        </div>
+      }
+    </section>
+  } @else if (listRequest.loading()) {
+    <div class="stack users__loading" aria-busy="true" [attr.aria-label]="'users.loading' | t">
+      @for (item of placeholders; track item) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  }
+</div>
+
+<app-user-form-dialog #userForm (saved)="onSaved($event)" />
+
+<app-delete-dialog />

@@ -1,0 +1,44 @@
+@let p = paginator();
+
+<p>{{ 'common.pagination.summary' | t: { from: p.from(), to: p.to(), total: p.total() } }}</p>
+
+@if (p.pageCount() > 1) {
+  <nav class="pagination__nav" [attr.aria-label]="'common.pagination.label' | t">
+    <button
+      type="button"
+      class="btn btn--ghost btn--icon btn--sm pagination__arrow"
+      [attr.aria-label]="'common.pagination.previous' | t"
+      [disabled]="p.page() === 1"
+      (click)="p.goTo(p.page() - 1)"
+    >
+      <mat-icon class="icon-18">chevron_left</mat-icon>
+    </button>
+
+    @for (page of pages(); track $index) {
+      @if (page === null) {
+        <span class="pagination__gap" aria-hidden="true">…</span>
+      } @else {
+        <button
+          type="button"
+          class="btn btn--sm pagination__page"
+          [class.pagination__page--current]="page === p.page()"
+          [attr.aria-current]="page === p.page() ? 'page' : null"
+          [attr.aria-label]="'common.pagination.page' | t: { page }"
+          (click)="p.goTo(page)"
+        >
+          {{ page }}
+        </button>
+      }
+    }
+
+    <button
+      type="button"
+      class="btn btn--ghost btn--icon btn--sm pagination__arrow"
+      [attr.aria-label]="'common.pagination.next' | t"
+      [disabled]="p.page() === p.pageCount()"
+      (click)="p.goTo(p.page() + 1)"
+    >
+      <mat-icon class="icon-18">chevron_right</mat-icon>
+    </button>
+  </nav>
+}

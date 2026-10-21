@@ -1,0 +1,103 @@
+<!-- Sidebar -->
+<aside class="sidebar" [class.sidebar--open]="menuOpen()">
+  <div class="sidebar__header">
+    <span class="sidebar__brand">
+      <img src="assets/images/logo_glow.png" [alt]="'app.name' | t" />
+    </span>
+    <button
+      type="button"
+      class="btn btn--icon btn--sm sidebar__close"
+      [attr.aria-label]="'common.closeMenu' | t"
+      (click)="menuOpen.set(false)"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <nav class="sidebar__nav" [attr.aria-label]="'nav.mainNavigation' | t">
+    <p class="sidebar__section">{{ 'nav.menu' | t }}</p>
+    <ul>
+      @for (item of navItems; track item.path) {
+        <li>
+          <a
+            class="sidebar__link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="menuOpen.set(false)"
+          >
+            <span class="sidebar__icon"><mat-icon class="icon-18">{{ item.icon }}</mat-icon></span>
+            {{ item.label | t }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <p class="sidebar__footer">{{ 'app.copyright' | t: { year, app: 'app.name' | t } }}</p>
+</aside>
+
+@if (menuOpen()) {
+  <div class="shell__backdrop" aria-hidden="true" (click)="menuOpen.set(false)"></div>
+}
+
+<div class="shell__main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button
+      type="button"
+      class="btn btn--ghost btn--icon btn--sm topbar__menu"
+      [attr.aria-label]="'common.openMenu' | t"
+      (click)="menuOpen.set(true)"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+  <!--   @if (pageTitle()) {
+      <h1 class="topbar__title">{{ pageTitle() }}</h1>
+    } -->
+
+    <div class="topbar__actions">
+      <button
+        type="button"
+        class="topbar__lang"
+        [attr.aria-label]="'common.switchLanguageLabel' | t"
+        (click)="i18n.toggle()"
+      >
+        <mat-icon class="icon-16">language</mat-icon>
+        <span>{{ 'common.switchLanguage' | t }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="topbar__icon-btn topbar__notify"
+        [attr.aria-label]="'common.notifications' | t"
+      >
+        <mat-icon class="icon-18">notifications</mat-icon>
+      </button>
+
+      @if (user(); as user) {
+        <div class="topbar__user">
+          <span class="avatar topbar__avatar" aria-hidden="true">{{ initials() }}</span>
+          <span class="topbar__meta">
+            <strong class="topbar__name">{{ user.name }}</strong>
+            <span class="topbar__role">{{ user.role }}</span>
+          </span>
+          <button
+            type="button"
+            class="topbar__icon-btn topbar__logout"
+            [attr.aria-label]="'common.signOut' | t"
+            [title]="'common.signOut' | t"
+            (click)="logout()"
+          >
+            <mat-icon class="icon-18">logout</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </header>
+
+  <main class="shell__content">
+    <router-outlet />
+  </main>
+</div>

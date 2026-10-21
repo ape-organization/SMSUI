@@ -1,0 +1,18 @@
+/* One-time secret: read-only monospace field + copy button */
+.api__secret {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.api__secret-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-surface-alt);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-sm);
+}
+
+.api__secret [data-copied] {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}

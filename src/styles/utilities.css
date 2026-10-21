@@ -1,0 +1,45 @@
+.stack {
+  display: grid;
+  gap: var(--stack-gap, var(--space-6));
+}
+
+/* Responsive auto-fit grid; tune the column floor with --grid-min */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--grid-min, 14rem), 100%), 1fr));
+  gap: var(--space-4);
+}
+
+.page-header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.page-title {
+  font-size: var(--text-xl);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+  font-size: smaller;
+}
+
+.text-sm {
+  font-size: var(--text-sm);
+  color: var(--color-navy);
+}
+
+.text-xs {
+  font-size: var(--text-xs);
+  color: var(--color-dark-green);
+}
+
+.text-center {
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+}

@@ -1,0 +1,133 @@
+<div class="stack">
+  <header class="page-header">
+    <h2 class="page-title">{{ greeting() }}</h2>
+    <p class="text-muted">{{ 'dashboard.subtitle' | t }}</p>
+  </header>
+
+  @if (state(); as state) {
+    @if (state.data; as data) {
+      <!-- Key metrics -->
+      <section class="grid-auto" [attr.aria-label]="'dashboard.metrics' | t">
+        @for (stat of data.stats; track stat.icon) {
+          <article class="card stat">
+            <div class="stat__top">
+              <span class="icon-badge" [attr.data-tone]="stat.tone"
+                ><mat-icon>{{ stat.icon }}</mat-icon></span
+              >
+              <span class="badge" dir="ltr" [attr.data-tone]="isPositive(stat) ? 'green' : 'red'">
+                <mat-icon class="icon-14">{{
+                  stat.trend >= 0 ? 'trending_up' : 'trending_down'
+                }}</mat-icon>
+                {{ stat.trend > 0 ? '+' : '' }}{{ stat.trend | number: '1.1-1' : locale() }}%
+              </span>
+            </div>
+            <p class="stat__value">{{ stat.value | number: undefined : locale() }}</p>
+            <p class="text-sm text-muted">{{ stat.label }}</p>
+          </article>
+        }
+      </section>
+
+      <div class="dashboard__panels">
+        <!-- Recent activity -->
+        <section class="card">
+          <header class="card__header">
+            <h2 class="card__title">{{ 'dashboard.activity.title' | t }}</h2>
+            <span class="badge">{{ 'dashboard.activity.period' | t }}</span>
+          </header>
+
+          @if (data.activity.length) {
+            <ul class="activity">
+              @for (item of data.activity; track item.id) {
+                <li class="activity__item">
+                  <span class="activity__dot" [attr.data-tone]="statusTone[item.status]"></span>
+                  <div class="activity__content">
+                    <p class="activity__title">{{ item.title }}</p>
+                    <p class="text-sm text-muted">{{ item.description }}</p>
+                  </div>
+                  <time class="text-xs text-muted" [attr.datetime]="item.timestamp">
+                    {{ item.timestamp | date: 'shortTime' : undefined : locale() }}
+                  </time>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="card__body text-sm text-muted">{{ 'dashboard.activity.empty' | t }}</p>
+          }
+        </section>
+
+        <!-- Account security -->
+        <section class="card">
+          <header class="card__header">
+            <h2 class="card__title">{{ 'dashboard.security.title' | t }}</h2>
+          </header>
+
+          <ul class="card__body security">
+            <li class="security__item">
+              <span class="icon-badge" data-tone="green"
+                ><mat-icon class="icon-18">verified_user</mat-icon></span
+              >
+              <div class="security__text">
+                <p class="security__label">{{ 'dashboard.security.twoFactor' | t }}</p>
+                <p class="text-xs text-muted">{{ 'dashboard.security.twoFactorHint' | t }}</p>
+              </div>
+              @if (data.security.twoFactorEnabled) {
+                <span class="badge" data-tone="green">{{ 'dashboard.security.active' | t }}</span>
+              } @else {
+                <span class="badge" data-tone="red">{{ 'dashboard.security.off' | t }}</span>
+              }
+            </li>
+
+            <li class="security__item">
+              <span class="icon-badge"><mat-icon class="icon-18">lock</mat-icon></span>
+              <div class="security__text">
+                <p class="security__label">{{ 'dashboard.security.password' | t }}</p>
+                <p class="text-xs text-muted">
+                  @if (data.security.passwordUpdatedAt; as passwordUpdatedAt) {
+                    {{
+                      'dashboard.security.passwordUpdated'
+                        | t
+                          : {
+                              date:
+                                (passwordUpdatedAt | date: 'mediumDate' : undefined : locale()) ??
+                                '',
+                            }
+                    }}
+                  } @else {
+                    {{ 'dashboard.security.never' | t }}
+                  }
+                </p>
+              </div>
+            </li>
+
+            <li class="security__item">
+              <span class="icon-badge" data-tone="blue"
+                ><mat-icon class="icon-18">schedule</mat-icon></span
+              >
+              <div class="security__text">
+                <p class="security__label">{{ 'dashboard.security.lastLogin' | t }}</p>
+                <p class="text-xs text-muted">
+                  @if (data.security.lastLoginAt; as lastLoginAt) {
+                    {{ lastLoginAt | date: 'medium' : undefined : locale() }}
+                  } @else {
+                    {{ 'dashboard.security.never' | t }}
+                  }
+                </p>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
+    } @else {
+      <div class="alert" data-tone="red" role="alert">
+        <mat-icon class="icon-18">error</mat-icon>
+        <span class="alert__body">{{ state.error }}</span>
+      </div>
+    }
+  } @else {
+    <div class="grid-auto" aria-busy="true" [attr.aria-label]="'dashboard.loading' | t">
+      @for (item of placeholders; track item) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  }
+</div>

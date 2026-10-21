@@ -1,0 +1,94 @@
+<div class="auth-page">
+  <main class="auth">
+    <button
+      type="button"
+      class="btn btn--ghost btn--sm auth-page__language"
+      [attr.aria-label]="'common.switchLanguageLabel' | t"
+      (click)="i18n.toggle()"
+    >
+      <mat-icon class="icon-16">language</mat-icon> {{ 'common.switchLanguage' | t }}
+    </button>
+    <span class="brand">
+      <img src="assets/images/logo.png" [alt]="'app.name' | t" />
+    </span>
+
+    <section class="card auth__card">
+      <div class="auth__header">
+        <h1 class="auth__title">{{ 'login.heading' | t }}</h1>
+        <p class="text-sm text-muted">{{ 'login.subtitle' | t }}</p>
+      </div>
+
+      @if (request.error(); as error) {
+        <div class="alert" data-tone="red" role="alert">
+          <mat-icon class="icon-18">error</mat-icon>
+          <span class="alert__body">{{ error }}</span>
+        </div>
+      }
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label class="field__label" for="username">{{ 'login.username' | t }}</label>
+          <input
+            id="username"
+            class="input"
+            type="text"
+            dir="auto"
+            formControlName="username"
+            autocomplete="username"
+            [placeholder]="'login.usernamePlaceholder' | t"
+          />
+          @if (fieldError(form.controls.username); as error) {
+            <p class="field__error" role="alert">
+              <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+            </p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">{{ 'login.password' | t }}</label>
+          <div class="password-field">
+            <input
+              id="password"
+              class="input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              [placeholder]="'login.passwordPlaceholder' | t"
+            />
+            <button
+              type="button"
+              class="btn btn--ghost btn--icon btn--sm password-field__toggle"
+              [attr.aria-label]="
+                (showPassword() ? 'common.hidePassword' : 'common.showPassword') | t
+              "
+              [attr.aria-pressed]="showPassword()"
+              (click)="showPassword.update((v) => !v)"
+            >
+              <mat-icon class="icon-18">{{
+                showPassword() ? 'visibility_off' : 'visibility'
+              }}</mat-icon>
+            </button>
+          </div>
+          @if (fieldError(form.controls.password); as error) {
+            <p class="field__error" role="alert">
+              <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+            </p>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block" [disabled]="request.loading()">
+          @if (request.loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          {{ 'login.submit' | t }}
+        </button>
+      </form>
+    </section>
+
+    <footer class="auth__footer">
+      <span class="text-xs"
+        ><mat-icon class="icon-14">verified_user</mat-icon> {{ 'login.secured' | t }}</span
+      >
+    </footer>
+  </main>
+</div>

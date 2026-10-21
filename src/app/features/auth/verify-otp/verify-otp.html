@@ -1,0 +1,93 @@
+<div class="auth-page">
+  <button
+    type="button"
+    class="btn btn--ghost btn--sm auth-page__language"
+    [attr.aria-label]="'common.switchLanguageLabel' | t"
+    (click)="i18n.toggle()"
+  >
+    <mat-icon class="icon-16">language</mat-icon> {{ 'common.switchLanguage' | t }}
+  </button>
+
+  <main class="auth">
+    <span class="brand">
+      <img src="assets/images/logo.png" [alt]="'app.name' | t" />
+    </span>
+
+    <section class="card auth__card">
+      <header class="auth__header">
+        <span class="icon-badge icon-badge--lg" data-tone="blue"><mat-icon>mail</mat-icon></span>
+        <h1 class="auth__title">{{ 'otp.heading' | t }}</h1>
+        <p class="text-sm text-muted">
+          {{ 'otp.subtitle' | t: { length: otpLength, destination: destination() } }}
+        </p>
+      </header>
+
+      @if (error(); as error) {
+        <div class="alert" data-tone="red" role="alert">
+          <mat-icon class="icon-18">error</mat-icon>
+          <span class="alert__body">{{ error }}</span>
+        </div>
+      } @else if (resent()) {
+        <div class="alert" data-tone="green" role="status">
+          <mat-icon class="icon-18">check_circle</mat-icon>
+          <span class="alert__body">{{ 'otp.resent' | t }}</span>
+        </div>
+      }
+
+      <form class="form" (ngSubmit)="verify()" novalidate>
+        <!-- Codes are read left-to-right in both languages. -->
+        <div class="otp" dir="ltr" role="group" [attr.aria-label]="'otp.groupLabel' | t">
+          @for (digit of digits(); track $index) {
+            <input
+              #box
+              class="input otp__box"
+              [class.input--invalid]="!!verifyRequest.error()"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              [value]="digit"
+              [attr.aria-label]="'otp.digitLabel' | t: { index: $index + 1, length: otpLength }"
+              (input)="onInput($index, $event)"
+              (keydown)="onKeydown($index, $event)"
+              (paste)="onPaste($event)"
+              (focus)="selectBox($event)"
+            />
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn--primary btn--block"
+          [disabled]="!isComplete() || verifyRequest.loading()"
+        >
+          @if (verifyRequest.loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          {{ 'otp.submit' | t }}
+        </button>
+      </form>
+
+      <p class="text-sm text-muted text-center" aria-live="polite">
+        {{ 'otp.notReceived' | t }}
+        @if (resendIn() > 0) {
+          <strong>{{ 'otp.resendIn' | t: { seconds: resendIn() } }}</strong>
+        } @else {
+          <button
+            type="button"
+            class="btn btn--link"
+            [disabled]="resendRequest.loading()"
+            (click)="resend()"
+          >
+            {{ 'otp.resend' | t }}
+          </button>
+        }
+      </p>
+    </section>
+
+    <footer class="auth__footer">
+      <button type="button" class="btn btn--link" (click)="backToLogin()">
+        {{ 'common.backToLogin' | t }}
+      </button>
+    </footer>
+  </main>
+</div>

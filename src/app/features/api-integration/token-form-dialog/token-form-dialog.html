@@ -1,0 +1,154 @@
+<!-- Generate / rename token; after generating, shows the one-time secret -->
+<dialog
+  #dialog
+  class="dialog"
+  aria-labelledby="token-dialog-title"
+  (click)="closeOnBackdrop($event)"
+  (cancel)="onCancel($event)"
+  (close)="onClosed()"
+>
+  @if (secret(); as secret) {
+    <div class="dialog__panel">
+      <header class="dialog__header">
+        <span class="icon-badge" data-tone="green"><mat-icon>check_circle</mat-icon></span>
+        <h2 id="token-dialog-title" class="dialog__title">
+          {{ 'apiIntegration.secret.title' | t }}
+        </h2>
+      </header>
+
+      <div class="alert" data-tone="red" role="alert">
+        <mat-icon class="icon-18">warning</mat-icon>
+        <span class="alert__body">{{ 'apiIntegration.secret.note' | t }}</span>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="token-secret">{{
+          'apiIntegration.secret.label' | t
+        }}</label>
+        <div class="api__secret">
+          <input
+            #secretInput
+            id="token-secret"
+            class="input api__secret-input"
+            dir="ltr"
+            readonly
+            [value]="secret"
+            (focus)="secretInput.select()"
+          />
+          <button
+            type="button"
+            class="btn btn--secondary"
+            [attr.data-copied]="copyState() === 'copied' || null"
+            (click)="copySecret(secretInput)"
+          >
+            <mat-icon class="icon-18">{{
+              copyState() === 'copied' ? 'check' : 'content_copy'
+            }}</mat-icon>
+            {{
+              (copyState() === 'copied'
+                ? 'apiIntegration.secret.copied'
+                : 'apiIntegration.secret.copy'
+              ) | t
+            }}
+          </button>
+        </div>
+        @if (copyState() === 'failed') {
+          <p class="field__error" role="alert">
+            <mat-icon class="icon-14">error</mat-icon>{{ 'apiIntegration.secret.copyFailed' | t }}
+          </p>
+        }
+      </div>
+
+      <footer class="dialog__actions">
+        <button type="button" class="btn btn--primary" (click)="close()">
+          {{ 'apiIntegration.secret.done' | t }}
+        </button>
+      </footer>
+    </div>
+  } @else {
+    <form class="dialog__panel" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <header class="dialog__header">
+        <span class="icon-badge" data-tone="blue">
+          <mat-icon>{{ editing() ? 'edit' : 'key' }}</mat-icon>
+        </span>
+        <h2 id="token-dialog-title" class="dialog__title">
+          {{
+            (editing() ? 'apiIntegration.form.editTitle' : 'apiIntegration.form.generateTitle') | t
+          }}
+        </h2>
+        <button
+          type="button"
+          class="btn btn--ghost btn--icon btn--sm dialog__close"
+          [attr.aria-label]="'common.close' | t"
+          (click)="close()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      @if (saveRequest.error(); as error) {
+        <div class="alert" data-tone="red" role="alert">
+          <mat-icon class="icon-18">error</mat-icon>
+          <span class="alert__body">{{ error }}</span>
+        </div>
+      }
+
+      <div class="form">
+        <div class="field">
+          <label class="field__label" for="token-name">{{ 'apiIntegration.form.name' | t }}</label>
+          <input
+            id="token-name"
+            class="input"
+            formControlName="name"
+            autocomplete="off"
+            [placeholder]="'apiIntegration.form.namePlaceholder' | t"
+          />
+          @if (fieldError(form.controls.name); as error) {
+            <p class="field__error" role="alert">
+              <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+            </p>
+          } @else if (editing()) {
+            <p class="field__hint">
+              <mat-icon class="icon-14">info</mat-icon>{{ 'apiIntegration.form.editHint' | t }}
+            </p>
+          }
+        </div>
+
+        @if (!editing()) {
+          <div class="field">
+            <label class="field__label" for="token-expiry">
+              {{ 'apiIntegration.form.expiresAt' | t }}
+              <span class="text-muted">{{ 'apiIntegration.form.optional' | t }}</span>
+            </label>
+            <input
+              id="token-expiry"
+              class="input"
+              type="date"
+              formControlName="expiresAt"
+              [min]="minExpiry()"
+            />
+            @if (fieldError(form.controls.expiresAt); as error) {
+              <p class="field__error" role="alert">
+                <mat-icon class="icon-14">error</mat-icon>{{ error | t }}
+              </p>
+            } @else {
+              <p class="field__hint">{{ 'apiIntegration.form.expiresHint' | t }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="dialog__actions">
+        <button type="button" class="btn btn--secondary" (click)="close()">
+          {{ 'common.cancel' | t }}
+        </button>
+        <button type="submit" class="btn btn--primary" [disabled]="saveRequest.loading()">
+          @if (saveRequest.loading()) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          {{ (editing() ? 'common.save' : 'apiIntegration.form.submitGenerate') | t }}
+        </button>
+      </footer>
+    </form>
+  }
+</dialog>
