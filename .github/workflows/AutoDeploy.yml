@@ -1,0 +1,190 @@
+name: Auto Tag
+
+concurrency:
+  group: release-tag
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed        
+
+permissions:
+  contents: write
+  pull-requests: write  
+
+jobs:
+  auto-tag:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.merged == false
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Angular project
+        run: npm run build --if-present
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          clean_latest=$(echo "$latest" | grep -oP '^\d+\.\d+\.\d+')
+          echo "latest=${clean_latest:-0.0.0}" >> $GITHUB_OUTPUT
+          echo "Latest clean tag: ${clean_latest:-0.0.0}"
+
+      - name: Extract version from package.json
+        id: pkg_version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Package version: $version"
+
+      - name: Get branch name
+        id: branch
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            raw_branch="${GITHUB_REF#refs/heads/}"
+          else
+            raw_branch="${{ github.head_ref }}"
+          fi
+
+          feature_name=$(echo "$raw_branch" | sed 's/^[^/]*\///' | sed 's/\//-/g')
+
+          echo "name=$feature_name" >> $GITHUB_OUTPUT
+          echo "Branch feature name: $feature_name"
+
+      - name: Calculate new tag
+        id: new_tag
+        run: |
+          latest=${{ steps.get_tag.outputs.latest }}
+          pkg_version=${{ steps.pkg_version.outputs.version }}
+          branch=${{ steps.branch.outputs.name }}
+
+          clean_pkg=${pkg_version%-SNAPSHOT}
+
+          IFS='.' read -r major minor patch <<< "$latest"
+          IFS='.' read -r p_major p_minor p_patch <<< "$clean_pkg"
+
+          if [[ "$major" == "$p_major" && "$minor" == "$p_minor" ]]; then
+            if [[ $p_patch -gt $patch ]]; then
+              patch=$p_patch
+            else
+              patch=$((patch + 1))
+            fi
+            base_tag="$major.$minor.$patch"
+          else
+            base_tag="$p_major.$p_minor.$p_patch"
+          fi
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            new_tag="$base_tag"
+          else
+            new_tag="$base_tag-SNAPSHOT-$branch"
+          fi
+
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+          echo "New tag: $new_tag"
+
+      - name: Create tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          TAG=${{ steps.new_tag.outputs.new_tag }}
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+
+            if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
+              echo "Tag $TAG already exists on remote. Skipping..."
+              exit 0
+            fi
+
+            git tag -a $TAG -m "Release $TAG"
+            git push origin $TAG
+
+          else
+            git push origin :refs/snapshots/$TAG 2>/dev/null || true
+            git update-ref refs/snapshots/$TAG HEAD
+            git push origin refs/snapshots/$TAG
+          fi
+
+      - name: Comment on PR with version
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = "${{ steps.new_tag.outputs.new_tag }}";
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `**Tag created for this PR:** \`${tag}\``
+            });
+
+  delete-snapshot-tag:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get snapshot tag to delete
+        id: snapshot_tag
+        run: |
+          raw_branch="${{ github.head_ref }}"
+          feature_name=$(echo "$raw_branch" | sed 's/^[^/]*\///' | sed 's/\//-/g')
+
+          snapshot_tag=$(git ls-remote origin 'refs/snapshots/*' | grep "SNAPSHOT-$feature_name$" | awk '{print $2}' | sed 's|refs/snapshots/||' | sort -V | tail -n 1)
+
+          echo "tag=$snapshot_tag" >> $GITHUB_OUTPUT
+          echo "Snapshot tag to delete: $snapshot_tag"
+
+      - name: Delete snapshot tag
+        if: steps.snapshot_tag.outputs.tag != ''
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git push origin :refs/snapshots/${{ steps.snapshot_tag.outputs.tag }} 2>/dev/null || true
+          echo "Deleted snapshot: ${{ steps.snapshot_tag.outputs.tag }}"
+
+      - name: Delete branch
+        run: |
+          git push origin --delete "${{ github.head_ref }}" 2>/dev/null || true
+          echo "Deleted branch: ${{ github.head_ref }}"
+
+      - name: Comment on PR tag deleted
+        if: steps.snapshot_tag.outputs.tag != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = "${{ steps.snapshot_tag.outputs.tag }}";
+            const branch = "${{ github.head_ref }}";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `**Snapshot tag deleted:** \`${tag}\`\n**Branch deleted:** \`${branch}\``
+            });
