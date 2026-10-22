@@ -15,8 +15,8 @@
     <section class="card auth__card">
       <div class="auth__header">
         <h1 class="auth__title">{{ 'login.heading' | t }}</h1>
-        <p class="text-sm text-muted">{{ 'login.subtitle' | t }}</p>
-      </div>
+<!--         <p class="text-sm text-muted">{{ 'login.subtitle' | t }}</p>
+ -->      </div>
 
       @if (request.error(); as error) {
         <div class="alert" data-tone="red" role="alert">
@@ -31,8 +31,9 @@
           <input
             id="username"
             class="input"
-            type="text"
-            dir="auto"
+            type="email"
+            dir="ltr"
+            inputmode="email"
             formControlName="username"
             autocomplete="username"
             [placeholder]="'login.usernamePlaceholder' | t"

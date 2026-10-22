@@ -13,6 +13,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
 </head>
 <body>
-  <app-root></app-root>
+  <!-- Splash shown until Angular boots; App keeps the same markup up until the first page is ready -->
+  <app-root>
+    <div class="app-loader" role="status" aria-label="Loading">
+      <span class="app-loader__brand"><img src="assets/images/logo.png" alt=""></span>
+      <span class="app-loader__spinner" aria-hidden="true"></span>
+    </div>
+  </app-root>
 </body>
 </html>

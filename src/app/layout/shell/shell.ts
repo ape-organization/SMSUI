@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
@@ -30,11 +40,14 @@ const NAV_ITEMS: readonly NavItem[] = [
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, MatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shell.html',
-  host: { '(document:keydown.escape)': 'menuOpen.set(false)' },
+  host: { '(document:keydown.escape)': 'closeMenu()' },
 })
 export class Shell {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+  private readonly menuButton = viewChild.required<ElementRef<HTMLButtonElement>>('menuButton');
+  private readonly closeButton = viewChild.required<ElementRef<HTMLButtonElement>>('closeButton');
 
   protected readonly i18n = inject(I18nService);
   protected readonly navItems = NAV_ITEMS;
@@ -63,6 +76,19 @@ export class Shell {
     const key = this.routeTitleKey();
     return key ? this.i18n.translate(key) : '';
   });
+
+  /** Opens the drawer and moves focus into it. */
+  protected openMenu(): void {
+    this.menuOpen.set(true);
+    afterNextRender(() => this.closeButton().nativeElement.focus(), { injector: this.injector });
+  }
+
+  /** Closes the drawer and hands focus back to the menu button. */
+  protected closeMenu(): void {
+    if (!this.menuOpen()) return;
+    this.menuOpen.set(false);
+    this.menuButton().nativeElement.focus();
+  }
 
   protected logout(): void {
     this.auth.logout();

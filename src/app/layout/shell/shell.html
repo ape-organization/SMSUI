@@ -1,14 +1,19 @@
-<!-- Sidebar -->
-<aside class="sidebar" [class.sidebar--open]="menuOpen()">
+<!-- Sidebar: fixed on desktop, slide-in drawer below 1024px (hidden from focus while closed) -->
+<aside
+  id="app-sidebar"
+  class="sidebar"
+  [class.sidebar--open]="menuOpen()"
+>
   <div class="sidebar__header">
     <span class="sidebar__brand">
-      <img src="assets/images/logo_glow.png" [alt]="'app.name' | t" />
+      <img src="assets/images/logo.png" [alt]="'app.name' | t" />
     </span>
     <button
+      #closeButton
       type="button"
       class="btn btn--icon btn--sm sidebar__close"
       [attr.aria-label]="'common.closeMenu' | t"
-      (click)="menuOpen.set(false)"
+      (click)="closeMenu()"
     >
       <mat-icon>close</mat-icon>
     </button>
@@ -38,24 +43,27 @@
 </aside>
 
 @if (menuOpen()) {
-  <div class="shell__backdrop" aria-hidden="true" (click)="menuOpen.set(false)"></div>
+  <div class="shell__backdrop" aria-hidden="true" (click)="closeMenu()"></div>
 }
 
 <div class="shell__main">
   <!-- Topbar -->
   <header class="topbar">
     <button
+      #menuButton
       type="button"
       class="btn btn--ghost btn--icon btn--sm topbar__menu"
+      aria-controls="app-sidebar"
+      [attr.aria-expanded]="menuOpen()"
       [attr.aria-label]="'common.openMenu' | t"
-      (click)="menuOpen.set(true)"
+      (click)="openMenu()"
     >
       <mat-icon>menu</mat-icon>
     </button>
 
-  <!--   @if (pageTitle()) {
-      <h1 class="topbar__title">{{ pageTitle() }}</h1>
-    } -->
+    <span class="topbar__brand">
+      <img src="assets/images/logo.png" [alt]="'app.name' | t" />
+    </span>
 
     <div class="topbar__actions">
       <button
@@ -64,23 +72,25 @@
         [attr.aria-label]="'common.switchLanguageLabel' | t"
         (click)="i18n.toggle()"
       >
-        <mat-icon class="icon-16">language</mat-icon>
+        <mat-icon class="icon-18">language</mat-icon>
         <span>{{ 'common.switchLanguage' | t }}</span>
       </button>
 
       <button
         type="button"
-        class="topbar__icon-btn topbar__notify"
+        class="topbar__icon-btn"
         [attr.aria-label]="'common.notifications' | t"
+        [title]="'common.notifications' | t"
       >
         <mat-icon class="icon-18">notifications</mat-icon>
       </button>
 
       @if (user(); as user) {
+        <span class="topbar__divider" aria-hidden="true"></span>
         <div class="topbar__user">
           <span class="avatar topbar__avatar" aria-hidden="true">{{ initials() }}</span>
           <span class="topbar__meta">
-            <strong class="topbar__name">{{ user.name }}</strong>
+            <strong class="topbar__name" [title]="user.name">{{ user.name }}</strong>
             <span class="topbar__role">{{ user.role }}</span>
           </span>
           <button

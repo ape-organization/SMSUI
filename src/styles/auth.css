@@ -7,7 +7,7 @@
   /* Extra top room for the language switcher */
   background:
     radial-gradient(60rem 30rem at 50% -10%, var(--color-navy-tint), transparent 70%),
-    white;
+    var(--color-surface);
 }
 
 .auth-page__language {
@@ -25,21 +25,21 @@
 
 .auth > .brand {
   justify-self: center;
-  
 }
 
 .auth__card {
   display: grid;
- /*  gap: var(--space-6);
-  padding: var(--space-6) var(--space-5); */
+  gap: var(--space-5);
+  padding: var(--space-8) var(--space-6);
   border-top: 3px solid var(--color-navy);
   box-shadow: var(--shadow-lg);
 }
 
 .auth__header {
+  display: grid;
   justify-items: center;
+  gap: var(--space-2);
   text-align: center;
-  padding-bottom: 20px;
 }
 
 .auth__title {
@@ -48,6 +48,7 @@
 
 .auth__footer {
   display: grid;
+  margin-top: var(--space-5);
   justify-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);
@@ -61,8 +62,34 @@
   gap: var(--space-1);
 }
 
-@media (min-width: 480px) {
+.auth__footer .mat-icon {
+  color: var(--color-green);
+}
+
+@media (max-width: 480px) {
+  /* Sit right under the language switcher (top 1rem + 2.25rem tall) instead of centring vertically */
+  .auth-page {
+    align-items: start;
+    padding-top: calc(var(--space-4) + 7.25rem + var(--space-6));
+    padding-bottom: var(--space-6);
+  }
+
+  /* The logo PNG is square with wide padding — crop to its wordmark so the card sits close */
+  .auth > .brand {
+    height: 6rem;
+    margin-bottom: var(--space-6);
+    overflow: hidden;
+  }
+
+  .auth > .brand img {
+    width: auto;
+    height: 15rem;
+    flex-shrink: 0;
+  }
+
   .auth__card {
-    padding: var(--space-8);
+    width: calc(100% - 2 * var(--space-4));
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-5);
   }
 }

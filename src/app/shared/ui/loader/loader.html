@@ -1,0 +1,9 @@
+<!-- A manual popover renders in the top layer, so it also covers open <dialog>s -->
+<div #overlay class="loader" popover="manual" role="status" aria-live="polite">
+  @if (visible()) {
+    <div class="loader__panel">
+      <span class="app-loader__spinner" aria-hidden="true"></span>
+<!--       <span class="loader__label">{{ 'common.loading' | t }}</span>
+ -->    </div>
+  }
+</div>

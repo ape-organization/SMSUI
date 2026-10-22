@@ -18,7 +18,6 @@ import { Paginator } from '../../../core/utils/paginator';
   imports: [DatePipe, TranslatePipe, MatIcon, Pagination, DeleteDialog, TokenFormDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './api-integration.html',
-  styleUrl: './api-integration.css',
 })
 export class ApiIntegration {
   private readonly tokensApi = inject(ApiIntegrationService);

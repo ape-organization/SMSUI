@@ -1,33 +1,37 @@
 <div class="stack">
-  <header class="api__header">
+  <header class="page-head">
     <div class="page-header">
-      <h2 class="page-title">{{ 'apiIntegration.title' | t }}</h2>
-      <p class="text-muted">{{ 'apiIntegration.subtitle' | t }}</p>
+     <!--  <h1 class="page-title">{{ 'apiIntegration.title' | t }}</h1> -->
+      <p class="page-subtitle">{{ 'apiIntegration.subtitle' | t }}</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="tokenForm.open()">
-      <mat-icon class="icon-18">key</mat-icon>
-      {{ 'apiIntegration.generate' | t }}
-    </button>
+    <div class="page-head__actions">
+      <button type="button" class="btn btn--primary" (click)="tokenForm.open()">
+        <mat-icon class="icon-18">key</mat-icon>
+        {{ 'apiIntegration.generate' | t }}
+      </button>
+    </div>
   </header>
 
   @if (listRequest.error(); as error) {
     <div class="alert" data-tone="red" role="alert">
-      <mat-icon class="error">error</mat-icon>
+      <mat-icon class="icon-18">error</mat-icon>
       <span class="alert__body">{{ error }}</span>
       <button type="button" class="btn btn--link" (click)="load()">{{ 'common.retry' | t }}</button>
     </div>
   }
 
   @if (loaded()) {
-    <section class="card">
-      <header class="card__header">
-     <!--    <h2 class="card__title">{{ 'apiIntegration.listTitle' | t }}</h2>
-        <span class="badge">{{ tokens().length }}</span> -->
-      </header>
+    <section class="card" aria-labelledby="api-tokens-title">
+    <!--   <header class="card__header">
+        <h2 id="api-tokens-title" class="card__title">
+        
+          <span class="badge">{{ tokens().length }}</span>
+        </h2> 
+      </header> -->
 
       @if (tokens().length) {
         <div class="table-wrap">
-          <table class="table">
+          <table class="table table--stack">
             <thead>
               <tr>
                 <th scope="col">{{ 'apiIntegration.columns.name' | t }}</th>
@@ -43,19 +47,23 @@
               @for (token of paginator.pageItems(); track token.id) {
                 <tr>
                   <td>
-                    <div class="token-cell">
-                      <span class="icon-badge api__token-icon"
-                        ><mat-icon class="icon-18">key</mat-icon></span
-                      >
-                      <span class="token-cell__name">{{ token.name }}</span>
+                    <div class="cell-identity">
+                     <!--  <span class="icon-badge icon-badge--sm" data-tone="gold" aria-hidden="true">
+                        <mat-icon class="icon-18">key</mat-icon>
+                      </span> -->
+                      <div class="cell-identity__text">
+                        <span class="cell-identity__title" [title]="token.name">{{
+                          token.name
+                        }}</span>
+                      </div>
                     </div>
                   </td>
-                  <td class="text-muted">
+                  <td class="table__muted" [attr.data-label]="'apiIntegration.columns.created' | t">
                     <time [attr.datetime]="token.createdAt">
                       {{ token.createdAt | date: 'mediumDate' : undefined : locale() }}
                     </time>
                   </td>
-                  <td class="text-muted">
+                  <td class="table__muted" [attr.data-label]="'apiIntegration.columns.expires' | t">
                     @if (token.expiresAt; as expiresAt) {
                       <time [attr.datetime]="expiresAt">
                         {{ expiresAt | date: 'mediumDate' : undefined : locale() }}
@@ -64,36 +72,38 @@
                       {{ 'apiIntegration.never' | t }}
                     }
                   </td>
-                  <td>
+                  <td [attr.data-label]="'apiIntegration.columns.status' | t">
                     @if (isExpired(token)) {
-                      <span class="badge" data-tone="red">{{
+                      <span class="badge badge--status" data-tone="red">{{
                         'apiIntegration.statuses.expired' | t
                       }}</span>
                     } @else {
-                      <span class="badge" data-tone="green">{{
+                      <span class="badge badge--status" data-tone="green">{{
                         'apiIntegration.statuses.active' | t
                       }}</span>
                     }
                   </td>
                   <td class="table__actions">
-                    <button
-                      type="button"
-                      class="btn btn--ghost btn--icon btn--sm"
-                      [attr.aria-label]="'apiIntegration.edit' | t: { name: token.name }"
-                      [title]="'common.edit' | t"
-                      (click)="tokenForm.open(token)"
-                    >
-                      <mat-icon class="edit">edit</mat-icon>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn--ghost btn--icon btn--sm api__delete"
-                      [attr.aria-label]="'apiIntegration.delete' | t: { name: token.name }"
-                      [title]="'common.delete' | t"
-                      (click)="confirmDelete(token)"
-                    >
-                      <mat-icon class="error">delete</mat-icon>
-                    </button>
+                    <div class="table__actions-group">
+                      <button
+                        type="button"
+                        class="btn btn--icon btn--sm btn--action"
+                        [attr.aria-label]="'apiIntegration.edit' | t: { name: token.name }"
+                        [title]="'common.edit' | t"
+                        (click)="tokenForm.open(token)"
+                      >
+                        <mat-icon class="greenicon">edit</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--icon btn--sm btn--action btn--action-danger"
+                        [attr.aria-label]="'apiIntegration.delete' | t: { name: token.name }"
+                        [title]="'common.delete' | t"
+                        (click)="confirmDelete(token)"
+                      >
+                        <mat-icon class="redicon">delete</mat-icon>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -102,20 +112,24 @@
         </div>
         <app-pagination [paginator]="paginator" />
       } @else {
-        <div class="card__body api__empty">
-          <span class="icon-badge icon-badge--lg"><mat-icon>vpn_key</mat-icon></span>
-          <p class="text-sm text-muted">{{ 'apiIntegration.empty' | t }}</p>
+        <div class="empty-state">
+          <span class="icon-badge icon-badge--lg" data-tone="gold"><mat-icon>vpn_key</mat-icon></span>
+          <p class="empty-state__title">{{ 'apiIntegration.emptyTitle' | t }}</p>
+          <p class="empty-state__text">{{ 'apiIntegration.empty' | t }}</p>
+          <button type="button" class="btn btn--primary btn--sm" (click)="tokenForm.open()">
+            <mat-icon class="icon-18">key</mat-icon>
+            {{ 'apiIntegration.generate' | t }}
+          </button>
         </div>
       }
     </section>
   } @else if (listRequest.loading()) {
-    <div
-      class="stack api__loading"
-      aria-busy="true"
-      [attr.aria-label]="'apiIntegration.loading' | t"
-    >
+    <div class="card skeleton-list" aria-busy="true" [attr.aria-label]="'apiIntegration.loading' | t">
       @for (item of placeholders; track item) {
-        <div class="skeleton"></div>
+        <div class="skeleton-list__row">
+          <div class="skeleton skeleton--circle"></div>
+          <div class="skeleton skeleton--line"></div>
+        </div>
       }
     </div>
   }

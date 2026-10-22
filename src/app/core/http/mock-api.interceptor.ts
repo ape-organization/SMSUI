@@ -28,14 +28,14 @@ import { SaveUserRequest, SystemUser } from '../../models/users.models';
 
 /*
  * In-memory fake backend for local development. Responds in the language sent via Accept-Language.
- *   Password : Password@123 (any username)
+ *   Password : Password@123 (any email)
  *   OTP code : 123456
- *   Username "newuser" triggers the first-login change-password flow.
+ *   Email "newuser@example.com" triggers the first-login change-password flow.
  */
 export const MOCK_CREDENTIALS = {
   password: 'Password@123',
   otp: '123456',
-  firstLoginUser: 'newuser',
+  firstLoginUser: 'newuser@example.com',
 } as const;
 
 const LATENCY_MS = 600;

@@ -11,12 +11,14 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
+  overflow-x: hidden;
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: 1.5;
   color: var(--color-text);
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -38,7 +40,7 @@ h4 {
 }
 
 a {
-  color: var(--color-blue);
+  color: var(--color-navy-light);
   font-weight: 500;
   text-decoration: none;
 }
@@ -47,16 +49,26 @@ a:hover {
   text-decoration: underline;
 }
 
+img {
+  max-width: 100%;
+}
+
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
   color: inherit;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--color-navy-light);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-gold-tint);
+  color: var(--color-navy);
 }
 
 .sr-only {
@@ -64,7 +76,7 @@ select {
   width: 1px;
   height: 1px;
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
@@ -73,6 +85,7 @@ select {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

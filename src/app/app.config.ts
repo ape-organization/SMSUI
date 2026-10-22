@@ -9,6 +9,7 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { mockApiInterceptor } from './core/http/mock-api.interceptor';
+import { loaderInterceptor } from './core/loader/loader.interceptor';
 import { languageInterceptor } from './core/i18n/language.interceptor';
 import { AppTitleStrategy } from './core/title-strategy';
 
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       // The mock backend must stay last so it sees headers added by earlier interceptors.
       withInterceptors([
+        loaderInterceptor,
         languageInterceptor,
         authInterceptor,
         ...(environment.useMockApi ? [mockApiInterceptor] : []),

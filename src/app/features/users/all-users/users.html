@@ -1,33 +1,86 @@
 <div class="stack">
-  <header class="users__header">
+  <header class="page-head">
     <div class="page-header">
-       <h4 class="page-title">{{ 'users.title' | t }}</h4> 
-      <p class="text-muted">{{ 'users.subtitle' | t }}</p>
+      <!-- <h1 class="page-title">{{ 'users.title' | t }}</h1> -->
+      <p class="page-subtitle">{{ 'users.subtitle' | t }}</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="userForm.open()">
-      <mat-icon class="icon-18">person_add</mat-icon>
-      {{ 'users.add' | t }}
-    </button>
+    <div class="page-head__actions">
+      <button type="button" class="btn btn--primary" (click)="userForm.open()">
+        <mat-icon class="icon-18">person_add</mat-icon>
+        {{ 'users.add' | t }}
+      </button>
+    </div>
   </header>
 
   @if (listRequest.error(); as error) {
     <div class="alert" data-tone="red" role="alert">
-      <mat-icon class="error">error</mat-icon>
+      <mat-icon class="redicon">error</mat-icon>
       <span class="alert__body">{{ error }}</span>
       <button type="button" class="btn btn--link" (click)="load()">{{ 'common.retry' | t }}</button>
     </div>
   }
 
   @if (loaded()) {
-   
-    <section class="card">
-       <div class="card__header">
-       
-      </div>
-
+    <section class="card" [attr.aria-label]="'users.listTitle' | t">
       @if (users().length) {
+        <div class="card__header">
+          <div class="toolbar">
+            <div class="search">
+              <mat-icon class="icon-18 search__icon">search</mat-icon>
+              <input
+                type="search"
+                class="input"
+                [value]="query()"
+                [attr.aria-label]="'users.filters.search' | t"
+                [placeholder]="'users.filters.searchPlaceholder' | t"
+                (input)="setQuery($event)"
+              />
+            </div>
+
+            <div class="toolbar__filters">
+              <select
+                class="input"
+                [value]="roleFilter()"
+                [attr.aria-label]="'users.filters.role' | t"
+                (change)="setRole($event)"
+              >
+                <option value="">{{ 'users.filters.allRoles' | t }}</option>
+                @for (role of roles; track role) {
+                  <option [value]="role">{{ roleLabels[role] | t }}</option>
+                }
+              </select>
+
+              <select
+                class="input"
+                [value]="statusFilter()"
+                [attr.aria-label]="'users.filters.status' | t"
+                (change)="setStatus($event)"
+              >
+                <option value="">
+                  {{ 'users.filters.allStatuses' | t }}</option>
+                @for (status of statuses; track status) {
+                  <option [value]="status">{{ statusLabels[status].label | t }}</option>
+                }
+              </select>
+
+              @if (hasFilters()) {
+                <button type="button" class="btn btn--ghost" (click)="clearFilters()">
+                  <mat-icon class="icon-18">filter_alt_off</mat-icon>
+                  {{ 'users.filters.clear' | t }}
+                </button>
+              }
+
+                 <h2 ><span class="badge">{{ users().length }}</span>
+        </h2>
+            </div>
+           
+          </div>
+        </div>
+      }
+
+      @if (filteredUsers().length) {
         <div class="table-wrap">
-          <table class="table">
+          <table class="table table--stack">
             <thead>
               <tr>
                 <th scope="col">{{ 'users.columns.name' | t }}</th>
@@ -43,44 +96,53 @@
               @for (user of paginator.pageItems(); track user.id) {
                 <tr>
                   <td>
-                    <div class="user-cell">
+                    <div class="cell-identity">
                       <span class="avatar" aria-hidden="true">{{ initials(user.name) }}</span>
-                      <div class="user-cell__text">
-                        <p class="user-cell__name">{{ user.name }}</p>
-                        <p class="text-sm text-muted" dir="ltr">{{ user.email }}</p>
+                      <div class="cell-identity__text">
+                        <span class="cell-identity__title" [title]="user.name">{{ user.name }}</span>
+                        <span class="cell-identity__meta" dir="ltr" [title]="user.email">{{
+                          user.email
+                        }}</span>
                       </div>
                     </div>
                   </td>
-                  <td>{{ roleLabels[user.role] | t }}</td>
-                  <td>
-                    <span class="badge" [attr.data-tone]="statusLabels[user.status].tone">
+                  <td [attr.data-label]="'users.columns.role' | t">
+                    <span class="badge badge--outline">{{ roleLabels[user.role] | t }}</span>
+                  </td>
+                  <td [attr.data-label]="'users.columns.status' | t">
+                    <span
+                      class="badge badge--status"
+                      [attr.data-tone]="statusLabels[user.status].tone"
+                    >
                       {{ statusLabels[user.status].label | t }}
                     </span>
                   </td>
-                  <td class="text-muted">
+                  <td class="table__muted" [attr.data-label]="'users.columns.created' | t">
                     <time [attr.datetime]="user.createdAt">
                       {{ user.createdAt | date: 'mediumDate' : undefined : locale() }}
                     </time>
                   </td>
                   <td class="table__actions">
-                    <button
-                      type="button"
-                      class="btn btn--ghost btn--icon btn--sm"
-                      [attr.aria-label]="'users.edit' | t: { name: user.name }"
-                      [title]="'common.edit' | t"
-                      (click)="userForm.open(user)"
-                    >
-                      <mat-icon class="edit">edit</mat-icon>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn--ghost btn--icon btn--sm users__delete"
-                      [attr.aria-label]="'users.delete' | t: { name: user.name }"
-                      [title]="'common.delete' | t"
-                      (click)="confirmDelete(user)"
-                    >
-                      <mat-icon class="error">delete</mat-icon>
-                    </button>
+                    <div class="table__actions-group">
+                      <button
+                        type="button"
+                        class="btn btn--icon btn--sm btn--action"
+                        [attr.aria-label]="'users.edit' | t: { name: user.name }"
+                        [title]="'common.edit' | t"
+                        (click)="userForm.open(user)"
+                      >
+                        <mat-icon class="greenicon">edit</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--icon btn--sm btn--action btn--action-danger"
+                        [attr.aria-label]="'users.delete' | t: { name: user.name }"
+                        [title]="'common.delete' | t"
+                        (click)="confirmDelete(user)"
+                      >
+                        <mat-icon class="redicon">delete</mat-icon>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -88,17 +150,34 @@
           </table>
         </div>
         <app-pagination [paginator]="paginator" />
+      } @else if (users().length) {
+        <div class="empty-state" role="status">
+          <span class="icon-badge icon-badge--lg"><mat-icon>search_off</mat-icon></span>
+          <p class="empty-state__title">{{ 'users.noResultsTitle' | t }}</p>
+          <p class="empty-state__text">{{ 'users.noResults' | t }}</p>
+          <button type="button" class="btn btn--secondary btn--sm" (click)="clearFilters()">
+            {{ 'users.filters.clear' | t }}
+          </button>
+        </div>
       } @else {
-        <div class="card__body users__empty">
+        <div class="empty-state">
           <span class="icon-badge icon-badge--lg"><mat-icon>group</mat-icon></span>
-          <p class="text-sm text-muted">{{ 'users.empty' | t }}</p>
+          <p class="empty-state__title">{{ 'users.emptyTitle' | t }}</p>
+          <p class="empty-state__text">{{ 'users.empty' | t }}</p>
+          <button type="button" class="btn btn--primary btn--sm" (click)="userForm.open()">
+            <mat-icon class="icon-18">person_add</mat-icon>
+            {{ 'users.add' | t }}
+          </button>
         </div>
       }
     </section>
   } @else if (listRequest.loading()) {
-    <div class="stack users__loading" aria-busy="true" [attr.aria-label]="'users.loading' | t">
+    <div class="card skeleton-list" aria-busy="true" [attr.aria-label]="'users.loading' | t">
       @for (item of placeholders; track item) {
-        <div class="skeleton"></div>
+        <div class="skeleton-list__row">
+          <div class="skeleton skeleton--circle"></div>
+          <div class="skeleton skeleton--line"></div>
+        </div>
       }
     </div>
   }

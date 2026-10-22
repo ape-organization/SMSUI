@@ -26,7 +26,7 @@ export class Login {
   protected readonly fieldError = fieldError;
 
   protected readonly form = inject(NonNullableFormBuilder).group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
 

@@ -1,13 +1,13 @@
 <div class="stack">
   <header class="page-header">
-    <h2 class="page-title">{{ greeting() }}</h2>
-    <p class="text-muted">{{ 'dashboard.subtitle' | t }}</p>
+    <!-- <h1 class="page-title">{{ greeting() }}</h1> -->
+    <p class="page-subtitle">{{ 'dashboard.subtitle' | t }}</p>
   </header>
 
   @if (state(); as state) {
     @if (state.data; as data) {
       <!-- Key metrics -->
-      <section class="grid-auto" [attr.aria-label]="'dashboard.metrics' | t">
+      <section class="dashboard__stats" [attr.aria-label]="'dashboard.metrics' | t">
         @for (stat of data.stats; track stat.icon) {
           <article class="card stat">
             <div class="stat__top">

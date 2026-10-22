@@ -6,20 +6,28 @@
 .field {
   display: grid;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .field__label {
+  color: var(--color-text);
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .field__hint,
 .field__error {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-1);
   font-size: var(--text-xs);
+  line-height: 1.4;
   color: var(--color-text-muted);
+}
+
+.field__hint .mat-icon,
+.field__error .mat-icon {
+  margin-top: 1px;
 }
 
 .field__error {
@@ -28,33 +36,71 @@
 
 .input {
   width: 100%;
+  min-width: 0;
   height: var(--control-height);
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
   transition:
     border-color var(--transition),
-    box-shadow var(--transition);
+    box-shadow var(--transition),
+    background-color var(--transition);
 }
 
 .input::placeholder {
   color: var(--color-text-subtle);
 }
 
-.input:hover {
+.input:hover:not(:disabled):not(:focus) {
   border-color: var(--color-text-subtle);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-blue);
+  border-color: var(--color-navy-light);
   box-shadow: var(--focus-ring);
 }
 
-.input:disabled {
+.input:disabled,
+.input[readonly] {
   background: var(--color-surface-alt);
+}
+
+.input:disabled {
+  color: var(--color-text-muted);
   cursor: not-allowed;
+}
+
+/* Native select with a direction-aware chevron */
+select.input {
+  padding-inline-end: 2.25rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%23718096'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25rem;
+  cursor: pointer;
+}
+
+[dir='rtl'] select.input {
+  background-position: left 0.5rem center;
+}
+
+/* Native date pickers: keep the calendar icon tidy */
+input[type='date'].input {
+  min-height: var(--control-height);
+}
+
+/* Checkboxes and radios pick up the brand colour */
+input[type='checkbox'],
+input[type='radio'] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--color-navy);
+  cursor: pointer;
 }
 
 /* Angular adds ng-invalid / ng-touched to form controls automatically */
@@ -65,7 +111,30 @@
 
 .input.ng-invalid.ng-touched:focus,
 .input--invalid:focus {
-  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.15);
+  box-shadow: var(--focus-ring-danger);
+}
+
+/* Search box: leading icon inside the input */
+.search {
+  position: relative;
+  min-width: 0;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: var(--space-3);
+  color: var(--color-text-subtle);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search .input {
+  padding-inline-start: 2.375rem;
+}
+
+.search .input::-webkit-search-cancel-button {
+  cursor: pointer;
 }
 
 /* Two fields side by side from 480px up */

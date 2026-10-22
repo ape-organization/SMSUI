@@ -1,3 +1,21 @@
+/* Metric cards: 1 → 2×2 → 4 across, so the grid never leaves a lone card */
+.dashboard__stats {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 560px) {
+  .dashboard__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .dashboard__panels {
   display: grid;
   align-items: start;
@@ -16,7 +34,6 @@
 
 .stat:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .stat__top {

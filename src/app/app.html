@@ -1,0 +1,18 @@
+<!-- Same markup as the splash in index.html, so the hand-over from static HTML is seamless -->
+@if (booting()) {
+  <div class="app-loader" role="status" aria-live="polite">
+    <span class="app-loader__brand">
+      <img src="assets/images/logo.png" alt="" />
+    </span>
+    <span class="app-loader__spinner" aria-hidden="true"></span>
+    <span class="sr-only">{{ 'common.loading' | t }}</span>
+  </div>
+}
+
+<router-outlet />
+
+<!-- Global busy overlay: API requests, page loads, and manual LoaderService.show()/track().
+     Mounted after the splash so the two never stack. -->
+@if (!booting()) {
+  <app-loader />
+}
